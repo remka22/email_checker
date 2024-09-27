@@ -55,14 +55,16 @@ const sendRequest = async () => {
       { cancelToken: cancelTokenSource.token }
     );
     results.value = response.data; // Записываем все найденные записи
+    isLoading.value = false;
   } catch (error) {
     if (axios.isCancel(error)) {
       console.log('Previous request canceled.');
     } else {
       errorMessage.value = error.response?.data?.message || 'Server offline ';
     }
-  } finally {
     isLoading.value = false;
+  } finally {
+    // isLoading.value = false;
   }
 };
 
@@ -88,7 +90,9 @@ const sendRequest = async () => {
       <button type="button" v-on:click="sendRequest()">Submit</button>
     </form>
 
-    <div v-if="results.length > 0" class="results">
+    <div v-if="isLoading" class="spinner"></div>
+
+    <div v-if="results.length" class="results">
       <h3>Results:</h3>
       <p v-for="(result, index) in results" :key="index">
         email: {{ result.email }}, number: {{ result.number.replace(/(\d{2})(\d{2})(\d{2})/, '$1-$2-$3') }}
@@ -179,4 +183,26 @@ span {
   margin-top: 10px;
   text-align: center;
 }
+
+/* Спиннер для индикации загрузки */
+.spinner {
+  border: 4px solid #f3f3f3; /* Светлый цвет для фона */
+  border-top: 4px solid #007bff; /* Цвет спиннера */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+/* Анимация вращения спиннера */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 </style>
